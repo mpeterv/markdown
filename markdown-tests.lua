@@ -4401,10 +4401,10 @@ local function run_tests()
    -- Do any <pre></pre> sequences in s1 and s2 match up perfectly?
    local function pre_equal(s1, s2)
       local pre = {}
-      for p in s1:gfind("<pre>.-</pre>") do
+      for p in s1:gmatch("<pre>.-</pre>") do
          pre[#pre+1] = p
       end
-      for p in s2:gfind("<pre>.-</pre>") do
+      for p in s2:gmatch("<pre>.-</pre>") do
          if p ~= pre[1] then return false end
          table.remove(pre, 1)
       end

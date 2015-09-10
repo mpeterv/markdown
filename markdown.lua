@@ -120,6 +120,8 @@ THE SOFTWARE.
 -- Utility functions
 ----------------------------------------------------------------------
 
+local unpack = table.unpack or unpack
+
 -- Locks table t from changes, writes an error if someone attempts to change the table.
 -- This is useful for detecting variables that have "accidently" been made global. Something
 -- I tend to do all too much.
