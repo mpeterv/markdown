@@ -1,19 +1,19 @@
 if not markdown then
-	require "markdown"
+   require "markdown"
 end
 
 -- Splits the text into an array of separate lines.
 local function split(text, sep)
-	sep = sep or "\n"
-	local lines = {}
-	local pos = 1
-	while true do
-		local b,e = text:find(sep, pos)
-		if not b then table.insert(lines, text:sub(pos)) break end
-		table.insert(lines, text:sub(pos, b-1))
-		pos = e + 1
-	end
-	return lines
+   sep = sep or "\n"
+   local lines = {}
+   local pos = 1
+   while true do
+      local b,e = text:find(sep, pos)
+      if not b then table.insert(lines, text:sub(pos)) break end
+      table.insert(lines, text:sub(pos, b-1))
+      pos = e + 1
+   end
+   return lines
 end
 
 ----------------------------------------------------------------------
@@ -28,14 +28,14 @@ end
 -- order.
 local TESTS = {}
 local TESTS_MT = {
-	__index = _G,
-	__newindex = function(t,k,v)
-		if k:sub(1,1) == "_" then rawset(t,k,v) return end
-		
-		if t._indices == nil then t._indices = {} end
-		table.insert(t._indices, k)
-		rawset(t,k,v)
-	end
+   __index = _G,
+   __newindex = function(t,k,v)
+      if k:sub(1,1) == "_" then rawset(t,k,v) return end
+
+      if t._indices == nil then t._indices = {} end
+      table.insert(t._indices, k)
+      rawset(t,k,v)
+   end
 }
 
 setmetatable(TESTS, TESTS_MT)
@@ -4404,75 +4404,75 @@ setfenv(1, _G)
 
 -- Test running function
 local function run_tests()
-	-- Do any <pre></pre> sequences in s1 and s2 match up perfectly?
-	local function pre_equal(s1, s2)
-		local pre = {}
-		for p in s1:gfind("<pre>.-</pre>") do
-			pre[#pre+1] = p
-		end
-		for p in s2:gfind("<pre>.-</pre>") do
-			if p ~= pre[1] then return false end
-			table.remove(pre, 1)
-		end
-		return #pre == 0
-	end
+   -- Do any <pre></pre> sequences in s1 and s2 match up perfectly?
+   local function pre_equal(s1, s2)
+      local pre = {}
+      for p in s1:gfind("<pre>.-</pre>") do
+         pre[#pre+1] = p
+      end
+      for p in s2:gfind("<pre>.-</pre>") do
+         if p ~= pre[1] then return false end
+         table.remove(pre, 1)
+      end
+      return #pre == 0
+   end
 
-	-- Are s1 and s2 equal except for whitespace issues.
-	local function nonspace_equal(s1, s2)
-		s1 = s1:gsub("[ \t\n\r]", "")
-		s2 = s2:gsub("[ \t\n\r]", "")
-		return s1 == s2
-	end
-	
-	-- Runs a single test
-	local function run_single_test(name, source, desired)
-		local result = markdown(source)
-		local res = pre_equal(result, desired) and nonspace_equal(result, desired)
-		if not res and not quiet_mode then
-			print("********** TEST FAILED **********")
-			print(name)
-			print("----- Input:")
-			print(source)
-			print("----- Expected output:")
-			print(desired)
-			print("----- Actual output:")
-			print(result)
-			print("*********************************")
-			print()
-		end
-		return res
-	end
-	
-	-- Runs a specified test battery
-	local function run_test(name, code)
-		local failed, succeeded = 0,0
-		local data = split(code, "\n~[ \t]*\n")
-		for i = 1, #data, 2 do
-			if run_single_test(name, data[i], data[i+1]) then
-				succeeded = succeeded + 1
-			else
-				failed = failed + 1
-			end
-		end
-		if failed>0 and not quiet_mode then
-			print(string.format("%-20s %15s %5i %15s %5i", name, "Succeeded:", succeeded, "Failed:", failed))
-		end
-		return failed
-	end
-		
-	total_failed = 0
-	for _,k in ipairs(TESTS._indices) do
-		total_failed = total_failed + run_test(k,TESTS[k])
-	end
-	if total_failed > 0 then
-		os.exit(-1)
-	end
+   -- Are s1 and s2 equal except for whitespace issues.
+   local function nonspace_equal(s1, s2)
+      s1 = s1:gsub("[ \t\n\r]", "")
+      s2 = s2:gsub("[ \t\n\r]", "")
+      return s1 == s2
+   end
+
+   -- Runs a single test
+   local function run_single_test(name, source, desired)
+      local result = markdown(source)
+      local res = pre_equal(result, desired) and nonspace_equal(result, desired)
+      if not res and not quiet_mode then
+         print("********** TEST FAILED **********")
+         print(name)
+         print("----- Input:")
+         print(source)
+         print("----- Expected output:")
+         print(desired)
+         print("----- Actual output:")
+         print(result)
+         print("*********************************")
+         print()
+      end
+      return res
+   end
+
+   -- Runs a specified test battery
+   local function run_test(name, code)
+      local failed, succeeded = 0,0
+      local data = split(code, "\n~[ \t]*\n")
+      for i = 1, #data, 2 do
+         if run_single_test(name, data[i], data[i+1]) then
+            succeeded = succeeded + 1
+         else
+            failed = failed + 1
+         end
+      end
+      if failed>0 and not quiet_mode then
+         print(string.format("%-20s %15s %5i %15s %5i", name, "Succeeded:", succeeded, "Failed:", failed))
+      end
+      return failed
+   end
+
+   total_failed = 0
+   for _,k in ipairs(TESTS._indices) do
+      total_failed = total_failed + run_test(k,TESTS[k])
+   end
+   if total_failed > 0 then
+      os.exit(-1)
+   end
 end
 
 for i=1,#arg do
-	if arg[i] == "-q" then
-		quiet_mode = true
-	end
+   if arg[i] == "-q" then
+      quiet_mode = true
+   end
 end
 
 run_tests()
