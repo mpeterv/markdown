@@ -1,6 +1,4 @@
-if not markdown then
-   require "markdown"
-end
+local markdown = require "markdown"
 
 -- Splits the text into an array of separate lines.
 local function split(text, sep)
@@ -26,23 +24,19 @@ end
 -- Set up a table to store all the tests. Customize __newindex to record the
 -- order in which the tests are created so that we can process them in the right
 -- order.
-local TESTS = {}
-local TESTS_MT = {
-   __index = _G,
-   __newindex = function(t,k,v)
-      if k:sub(1,1) == "_" then rawset(t,k,v) return end
+local tests_mt = {
+   __newindex = function(t, k, v)
+      if type(k) == "string" then
+         table.insert(t, k)
+      end
 
-      if t._indices == nil then t._indices = {} end
-      table.insert(t._indices, k)
-      rawset(t,k,v)
+      rawset(t, k, v)
    end
 }
-
-setmetatable(TESTS, TESTS_MT)
-setfenv(1, TESTS)
+local tests = setmetatable({}, tests_mt)
 
 -- Test header markers
-headers = [[
+tests.headers = [[
 This is an h1
 ============
 
@@ -89,7 +83,7 @@ This is an h2
 ]]
 
 -- Test blockquotes
-blockquotes = [[
+tests.blockquotes = [[
 > This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
 > consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
 > Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
@@ -163,7 +157,7 @@ id sem consectetuer libero luctus adipiscing.
 ]]
 
 -- Test lists
-lists = [[
+tests.lists = [[
 *   Red
 *   Green
 *   Blue
@@ -339,7 +333,7 @@ sit amet, consectetuer adipiscing elit.</p></li>
 ]]
 
 -- Test code blocks
-code_blocks = [[
+tests.code_blocks = [[
 This is a normal paragraph:
 
     This is a code block.
@@ -380,7 +374,7 @@ And _underlines_.
 ]]
 
 -- Test rules
-rules = [[
+tests.rules = [[
 * * *
 
 ***
@@ -403,7 +397,7 @@ rules = [[
 ]]
 
 -- Test links
-links = [[
+tests.links = [[
 This is [an example](http://example.com/ "Title") inline link.
 ~
 <p>This is <a href="http://example.com/" title="Title">an example</a> inline link.</p>
@@ -491,7 +485,7 @@ or <a href="http://search.msn.com/" title="MSN Search">MSN</a>.</p>
 ]]
 
 -- Test emphasis
-emphasis = [[
+tests.emphasis = [[
 Test *single asterisks* test.
 ~
 <p>Test <em>single asterisks</em> test.</p>
@@ -522,7 +516,7 @@ Test with *two* different *words*.
 ]]
 
 -- Test code
-code = [[
+tests.code = [[
 Use the `printf()` function.
 ~
 <p>Use the <code>printf()</code> function.</p>
@@ -554,7 +548,7 @@ wrapped with an
 ]]
 
 -- Test images
-images = [[
+tests.images = [[
 ![Alt text](/path/to/img.jpg)
 
 ![Alt text](/path/to/img.jpg "Optional title")
@@ -571,7 +565,7 @@ images = [[
 ]]
 
 -- Test autolinking
-autolinks = [[
+tests.autolinks = [[
 An auto link <http://www.google.com/>.
 ~
 <p>An auto link <a href="http://www.google.com/">http://www.google.com/</a>.</p>
@@ -588,14 +582,14 @@ Mail links <niklas@frykholm.se> and <mailto:niklas@frykholm.se>.
 ]]
 
 -- Test escape codes
-escapes = [[
+tests.escapes = [[
 \*literal asterisks\*
 ~
 <p>*literal asterisks*</p>
 ]]
 
 -- Test hard linebreaks
-linebreaks = [[
+tests.linebreaks = [[
 Poetry  
 in  
 motion
@@ -606,7 +600,7 @@ motion</p>
 ]]
 
 -- Test amps and angles conversion
-amps = [[
+tests.amps = [[
 &copy;
 ~
 <p>&copy;</p>
@@ -621,7 +615,7 @@ AT&T
 ]]
 
 -- Test raw blocks
-raw = [[
+tests.raw = [[
 <div>
 	This should not be disturbed by Markdown.
 </div>
@@ -633,7 +627,7 @@ raw = [[
 
 -- Markdown test suit
 
-markdown_amps_and_angles = [[
+tests.markdown_amps_and_angles = [[
 AT&T has an ampersand in their name.
 
 AT&amp;T is another way to write it.
@@ -674,7 +668,7 @@ Here's an inline [link](</script?foo=1&bar=2>).
 <p>Here's an inline <a href="/script?foo=1&amp;bar=2">link</a>.</p>
 ]]
 
-markdown_auto_links = [[
+tests.markdown_auto_links = [[
 Link: <http://example.com/>.
 
 With an ampersand: <http://example.com/?foo=1&bar=2>
@@ -709,7 +703,7 @@ Auto-links should not occur here: `<http://example.com/>`
 </code></pre>
 ]]
 
-markdown_backslash_escapes = [[
+tests.markdown_backslash_escapes = [[
 These should all get escaped:
 
 Backslash: \\
@@ -919,7 +913,7 @@ Minus: \-
 <p>Minus: <code>\-</code></p>
 ]]
 
-markdown_blockquotes_with_codeblocks = [[
+tests.markdown_blockquotes_with_codeblocks = [[
 > Example:
 > 
 >     sub status {
@@ -949,7 +943,7 @@ markdown_blockquotes_with_codeblocks = [[
 </blockquote>
 ]]
 
-markdown_hard_wrapped_paragraphs_with_list_like_lines = [[
+tests.markdown_hard_wrapped_paragraphs_with_list_like_lines = [[
 In Markdown 1.0.0 and earlier. Version
 8. This line turns into a list item.
 Because a hard-wrapped line in the
@@ -969,7 +963,7 @@ list item.</p>
 * criminey.</p>
 ]]
 
-markdown_horizontal_rules = [[
+tests.markdown_horizontal_rules = [[
 Dashes:
 
 ---
@@ -1113,7 +1107,7 @@ _ _ _
 
 -- currently not supported by regular markdown, so we ignore it too
 --[[
-markdown_inline_html_advanced = 
+tests.markdown_inline_html_advanced = 
 Simple block on one line:
 
 <div>foo</div>
@@ -1145,7 +1139,7 @@ foo
 </div>
 ]]
 
-markdown_inline_html_simple = [[
+tests.markdown_inline_html_simple = [[
 Here's a simple block:
 
 <div>
@@ -1289,7 +1283,7 @@ Blah
 <hr class="foo" id="bar" >
 ]]
 
-markdown_inline_html_comments = [[
+tests.markdown_inline_html_comments = [[
 Paragraph one.
 
 <!-- This is a simple comment -->
@@ -1319,7 +1313,7 @@ The end.
 <p>The end.</p>
 ]]
 
-markdown_links_inline_style = [[
+tests.markdown_links_inline_style = [[
 Just a [URL](/url/).
 
 [URL and title](/url/ "title").
@@ -1341,7 +1335,7 @@ Just a [URL](/url/).
 <p><a href="">Empty</a>.</p>
 ]]
 
-markdown_links_reference_style = [=[
+tests.markdown_links_reference_style = [=[
 Foo [bar] [1].
 
 Foo [bar][1].
@@ -1394,7 +1388,7 @@ Indented [four][] times.
 </code></pre>
 ]=]
 
-markdown_literal_quotes_in_text = [=[
+tests.markdown_literal_quotes_in_text = [=[
 Foo [bar][].
 
 Foo [bar](/url/ "Title with "quotes" inside").
@@ -1407,7 +1401,7 @@ Foo [bar](/url/ "Title with "quotes" inside").
 <p>Foo <a href="/url/" title="Title with &quot;quotes&quot; inside">bar</a>.</p>
 ]=]
 
-markdown_basics = [[
+tests.markdown_basics = [[
 Markdown: Basics
 ================
 
@@ -2031,7 +2025,7 @@ you've got to put paragraph tags in your blockquotes:&lt;/p&gt;
 </code></pre>
 ]]
 
-markdown_syntax = [[
+tests.markdown_syntax = [[
 Markdown: Syntax
 ================
 
@@ -3864,7 +3858,7 @@ _   underscore
 </code></pre>
 ]]
 
-markdown_nested_blockquotes = [[
+tests.markdown_nested_blockquotes = [[
 > foo
 >
 > > bar
@@ -3882,7 +3876,7 @@ markdown_nested_blockquotes = [[
 </blockquote>
 ]]
 
-markdown_ordered_and_unordered_lists = [[
+tests.markdown_ordered_and_unordered_lists = [[
 ## Unordered
 
 Asterisks tight:
@@ -4145,7 +4139,7 @@ back.</p></li>
 </ol>
 ]]
 
-markdown_strong_and_em_together = [[
+tests.markdown_strong_and_em_together = [[
 ***This is strong and em.***
 
 So is ***this*** word.
@@ -4163,7 +4157,7 @@ So is ___this___ word.
 <p>So is <strong><em>this</em></strong> word.</p>
 ]]
 
-markdown_tabs = [[
+tests.markdown_tabs = [[
 +	this is a list item
 	indented with tabs
 
@@ -4213,7 +4207,7 @@ indented with spaces</p></li>
 </code></pre>
 ]]
 
-markdown_tidyness = [[
+tests.markdown_tidyness = [[
 > A list within a blockquote:
 > 
 > *	asterisk 1
@@ -4230,7 +4224,7 @@ markdown_tidyness = [[
 </blockquote>
 ]]
 
-bug_from_paul_chiusano_gmail_com = [[
+tests.bug_from_paul_chiusano_gmail_com = [[
 [context-free grammar][CFG]  
 [notated][BNF]  
 [unrestricted grammar][]
@@ -4248,7 +4242,7 @@ bug_from_paul_chiusano_gmail_com = [[
 <p><em><code>foo()</code></em></p>
 ]]
 
-links = [[
+tests.links = [[
 [the_dog](the_dog.html)
 ~
 <p><a href="the_dog.html">the_dog</a></p>
@@ -4278,7 +4272,7 @@ _Kalle_
 <p><em>Kalle</em></p>
 ]]
 
-bugs = [==[
+tests.bugs = [==[
 [the dog](the%20dog.html)
 ~
 <p><a href="the%20dog.html">the dog</a></p>
@@ -4400,7 +4394,7 @@ This is [an example] [id] reference-style link.
 
 -- Unhandled test: _M*A*S*H_
 
-setfenv(1, _G)
+local quiet_mode
 
 -- Test running function
 local function run_tests()
@@ -4460,9 +4454,9 @@ local function run_tests()
       return failed
    end
 
-   total_failed = 0
-   for _,k in ipairs(TESTS._indices) do
-      total_failed = total_failed + run_test(k,TESTS[k])
+   local total_failed = 0
+   for _,k in ipairs(tests) do
+      total_failed = total_failed + run_test(k,tests[k])
    end
    if total_failed > 0 then
       os.exit(-1)
