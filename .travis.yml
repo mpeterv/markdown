@@ -13,7 +13,11 @@ before_install:
   - export PATH=$PATH:$PWD/here/bin
 
 install:
+  - luarocks install luacov-coveralls
   - luarocks make
 
 script:
-  - lua markdown-tests.lua
+  - lua -lluacov markdown-tests.lua
+
+after_success:
+  - luacov-coveralls

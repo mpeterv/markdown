@@ -1,0 +1,5 @@
+return {
+   modules = {
+      markdown = "markdown.lua"
+   }
+}
