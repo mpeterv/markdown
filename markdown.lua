@@ -122,28 +122,12 @@ THE SOFTWARE.
 
 local unpack = table.unpack or unpack
 
--- Locks table t from changes, writes an error if someone attempts to change the table.
--- This is useful for detecting variables that have "accidently" been made global. Something
--- I tend to do all too much.
-local function lock(t)
-   local function lock_new_index(t, k, v)
-      error("module has been locked -- " .. k .. " must be declared local", 2)
-   end
-
-   local mt = {__newindex = lock_new_index}
-   if getmetatable(t) then mt.__index = getmetatable(t).__index end
-   setmetatable(t, mt)
-end
-
 -- Returns the result of mapping the values in table t through the function f
 local function map(t, f)
    local out = {}
    for k,v in pairs(t) do out[k] = f(v,k) end
    return out
 end
-
--- The identity function, useful as a placeholder.
-local function identity(text) return text end
 
 -- Functional style if statement. (NOTE: no short circuit evaluation)
 local function iff(t, a, b) if t then return a else return b end end
@@ -194,7 +178,7 @@ local function splice(array, start, stop, replacement)
          table.remove(array, start)
          n = n - 1
       end
-      for i,v in ipairs(replacement) do
+      for _,v in ipairs(replacement) do
          table.insert(array, start, v)
       end
       return array
@@ -760,14 +744,6 @@ function block_transform(text, sublist)
    return text
 end
 
--- Debug function for printing a line array to see the result
--- of partial transforms.
-local function print_lines(lines)
-   for i, line in ipairs(lines) do
-      print(i, line.type, line.text or line.line)
-   end
-end
-
 ----------------------------------------------------------------------
 -- Span transform
 ----------------------------------------------------------------------
@@ -1219,7 +1195,7 @@ local function run_command_line(arg)
    local function run(s, options)
       s = markdown(s)
       if not options.wrap_header then return s end
-      local header = ""
+      local header
       if options.header then
          local f = io.open(options.header) or error("Could not open file: " .. options.header) 
          header = f:read("*a")
@@ -1310,7 +1286,7 @@ Other options:
    op:param("c", "charset", function (x) options.charset = x end)
    op:param("i", "title", function(x) options.title = x end)
    op:param("s", "style", function(x) options.stylesheet = x end)
-   op:flag("l", "inline-style", function(x) options.inline_style = true end)
+   op:flag("l", "inline-style", function() options.inline_style = true end)
    op:flag("a", "append", function() options.append = true end)
    op:flag("t", "test", function() 
       local n = arg[0]:gsub("markdown.lua", "markdown-tests.lua")
