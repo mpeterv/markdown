@@ -10,11 +10,12 @@ description = {
    homepage = "https://github.com/mpeterv/markdown"
 }
 dependencies = {
-   "lua >= 5.1"
+   "lua >= 5.1, < 5.4"
 }
 build = {
    type = "builtin",
    modules = {
       markdown = "markdown.lua"
-   }
+   },
+   copy_directories = {}
 }

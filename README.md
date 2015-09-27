@@ -5,7 +5,7 @@
 
 This is an implementation of the popular text markup language Markdown in pure Lua.
 Markdown can convert documents written in a simple and easy to read text format
-to well-formatted HTML. For a more thourough description of Markdown and the Markdown
+to well-formatted HTML. For a more thorough description of Markdown and the Markdown
 syntax, see http://daringfireball.net/projects/markdown/.
 
 The original Markdown source is written in Perl and makes heavy use of advanced
@@ -41,4 +41,14 @@ lua markdown.lua -h
 
 For a description of the command-line options.
 
+## Installation
+
+Simply copy `markdown.lua` into your directory for Lua libraries. Alternatively,
+use [LuaRocks](https://luarocks.org/) and run `[sudo] luarocks install markdown`.
+
+## Miscellaneous
+
 `markdown.lua` uses the same license as Lua, the MIT license.
+
+An alternative Markdown implementation is [lua-discount](http://asbradbury.org/projects/lua-discount/).
+It is faster than `markdown.lua`, at the cost of being written in C.
