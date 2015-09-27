@@ -1154,7 +1154,7 @@ Generated header:
     -c, --charset SET    Specifies charset (default utf-8).
     -i, --title TITLE    Specifies title (default from first <h1> tag).
     -s, --style STYLE    Specifies style sheet file (default default.css).
-   -l, --inline-style   Include the style sheet file inline in the header.
+    -l, --inline-style   Include the style sheet file inline in the header.
 Generated files:
     -a, --append         Append .html extension (instead of replacing).
 Other options:
@@ -1173,10 +1173,12 @@ Other options:
    op:flag("l", "inline-style", function() options.inline_style = true end)
    op:flag("a", "append", function() options.append = true end)
    op:flag("t", "test", function()
-      local n = arg[0]:gsub("markdown.lua", "markdown-tests.lua")
+      local n = arg[0]:gsub("markdown%.lua", "markdown-tests.lua")
       local f = io.open(n)
       if f then
-         f:close() dofile(n)
+         f:close()
+         package.loaded.markdown = markdown
+         dofile(n)
       else
          error("Cannot find markdown-tests.lua")
       end
