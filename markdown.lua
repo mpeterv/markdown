@@ -1073,6 +1073,13 @@ function OptionParser:run(args)
    return true
 end
 
+local function read_file(path, descr)
+   local file = io.open(path) or error("Could not open " .. descr .. " file: " .. path)
+   local contents = file:read("*a") or error("Could not read " .. descr .. " from " .. path)
+   file:close()
+   return contents
+end
+
 -- Handles the case when markdown is run from the command line
 local function run_command_line(arg)
    -- Generate output for input s given options
@@ -1081,9 +1088,7 @@ local function run_command_line(arg)
       if not options.wrap_header then return s end
       local header
       if options.header then
-         local f = io.open(options.header) or error("Could not open file: " .. options.header)
-         header = f:read("*a")
-         f:close()
+         header = read_file(options.header, "header")
       else
          header = [[
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -1099,13 +1104,7 @@ local function run_command_line(arg)
             s:match("<h3>(.-)</h3>") or "Untitled"
          header = header:gsub("TITLE", title)
          if options.inline_style then
-            local style = ""
-            local f = io.open(options.stylesheet)
-            if f then
-               style = f:read("*a") f:close()
-            else
-               error("Could not include style sheet " .. options.stylesheet .. ": File not found")
-            end
+            local style = read_file(options.stylesheet, "style sheet")
             header = header:gsub('<link rel="stylesheet" type="text/css" href="STYLESHEET" />',
                "<style type=\"text/css\"><!--\n" .. style .. "\n--></style>")
          else
@@ -1115,9 +1114,7 @@ local function run_command_line(arg)
       end
       local footer = "</body></html>"
       if options.footer then
-         local f = io.open(options.footer) or error("Could not open file: " .. options.footer)
-         footer = f:read("*a")
-         f:close()
+         footer = read_file(options.footer, "footer")
       end
       return header .. s .. footer
    end
@@ -1186,15 +1183,13 @@ Other options:
    end)
    op:flag("h", "help", function() print(help) run_stdin = false end)
    op:arg(function(path)
-         local file = io.open(path) or error("Could not open file: " .. path)
-         local s = file:read("*a")
-         file:close()
-         s = run(s, options)
-         file = io.open(outpath(path, options), "w") or error("Could not open output file: " .. outpath(path, options))
-         file:write(s)
-         file:close()
-         run_stdin = false
-      end
+      local s = read_file(path, "input")
+      s = run(s, options)
+      local file = io.open(outpath(path, options), "w") or error("Could not open output file: " .. outpath(path, options))
+      file:write(s)
+      file:close()
+      run_stdin = false
+   end
    )
 
    if not op:run(arg) then
