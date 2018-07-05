@@ -4392,6 +4392,25 @@ This is [an example] [id] reference-style link.
 <p><a href="kbs/wes-box-134.md.lp">Wesel - Boxtel [KBS 134]</a></p>
 ]==]
 
+tests.sven = [[
+TASK_CARGO_DISPATCHER
+~
+<p>TASK_CARGO_DISPATCHER</p>
+~
+TASK _CARGO_ DISPATCHER
+~
+<p>TASK<em>CARGO</em>DISPATCHER</p>
+~
+TASK_CARGO_ DISPATCHER
+~
+<p>TASK_CARGO_ DISPATCHER</p>
+~
+TASK*CARGO*DISPATCHER
+~
+<p>TASK<em>CARGO</em>DISPATCHER</p>
+]]
+
+
 -- Unhandled test: _M*A*S*H_
 
 local quiet_mode

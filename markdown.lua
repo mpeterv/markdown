@@ -895,9 +895,19 @@ local function emphasis(text)
       text = text:gsub(s .. "([^%s][%*%_]?)" .. s, "<strong>%1</strong>")
       text = text:gsub(s .. "([^%s][^<>]-[^%s][%*%_]?)" .. s, "<strong>%1</strong>")
    end
-   for _, s in ipairs {"%*", "%_"} do
-      text = text:gsub(s .. "([^%s_])" .. s, "<em>%1</em>")
-      text = text:gsub(s .. "(<strong>[^%s_]</strong>)" .. s, "<em>%1</em>")
+   for _, s in ipairs {"%_"} do
+      text = text:gsub("([^%w]+)" .. s .. "([^%s_])" .. s, "%1<em>%2</em> ")
+      text = text:gsub("([^%w]+)" .. s .. "(<strong>[^%s_]</strong>)" ..s, "%1<em>%2</em>")
+      text = text:gsub("([^%w]+)" .. s .. "([^%s_][^<>_]-[^%s_])" .. s, "%1<em>%2</em>")
+      text = text:gsub("([^%w]+)" .. s .. "([^<>_]-<strong>[^<>_]-</strong>[^<>_]-)" .. s, "%1<em>%2</em>")
+      text = text:gsub("^" .. s .. "([^%s_])" .. s, "<em>%1</em> ")
+      text = text:gsub("^" .. s .. "(<strong>[^%s_]</strong>)" ..s, "<em>%1</em>")
+      text = text:gsub("^" .. s .. "([^%s_][^<>_]-[^%s_])" .. s, "<em>%1</em>")
+      text = text:gsub("^" .. s .. "([^<>_]-<strong>[^<>_]-</strong>[^<>_]-)" .. s, "<em>%1</em>")
+   end
+   for _, s in ipairs {"%*"} do
+      text = text:gsub(s .. "([^%s_])" .. s, "<em>%1</em> ")
+      text = text:gsub(s .. "(<strong>[^%s_]</strong>)" ..s, "<em>%1</em>")
       text = text:gsub(s .. "([^%s_][^<>_]-[^%s_])" .. s, "<em>%1</em>")
       text = text:gsub(s .. "([^<>_]-<strong>[^<>_]-</strong>[^<>_]-)" .. s, "<em>%1</em>")
    end
